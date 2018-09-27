@@ -4,8 +4,10 @@ from transmute_core.swagger import (
     SwaggerSpec
 )
 from transmute_core import default_context
+import tornado
 import tornado.web
 
+USE_ROUTER = tornado.version_info >= (4, 5)
 METHODS = ["get", "post", "delete", "put"]
 STATIC_ROOT = "/_swagger/static"
 
@@ -29,15 +31,23 @@ def generate_swagger_json_handler(app, context, **kwargs):
     return SwaggerSpecHandler
 
 
+def _get_handlers(app):
+    if USE_ROUTER:
+        for rule in app.wildcard_router.rules:
+            yield rule.target
+    else:
+        for domain, specs in app.handlers:
+            for s in specs:
+                yield s.handler_class
+
+
 def _generate_swagger_json(app, context, **kwargs):
     spec = SwaggerSpec()
-    for domain, specs in app.handlers:
-        for s in specs:
-            handler = s.handler_class
-            for m in METHODS:
-                method = getattr(handler, m)
-                if hasattr(method, "transmute_func"):
-                    spec.add_func(method.transmute_func, context)
+    for handler in _get_handlers(app):
+        for m in METHODS:
+            method = getattr(handler, m)
+            if hasattr(method, "transmute_func"):
+                spec.add_func(method.transmute_func, context)
     return spec.swagger_definition(**kwargs)
 
 

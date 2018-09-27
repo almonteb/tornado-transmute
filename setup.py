@@ -5,6 +5,7 @@ from setuptools import setup, find_packages
 
 base = os.path.dirname(os.path.abspath(__file__))
 README_PATH = os.path.join(base, "README.rst")
+TORNADO_VERSION = os.environ.get("TORNADO_VERSION", "")
 
 is_release = False
 if "--release" in sys.argv:
@@ -13,7 +14,7 @@ if "--release" in sys.argv:
 
 install_requires = [
     'transmute-core',
-    'tornado<=4.4.2'
+    'tornado' + TORNADO_VERSION,
 ]
 
 tests_require = []
@@ -45,6 +46,8 @@ setup(name='tornado-transmute',
           'Programming Language :: Python :: 3.2',
           'Programming Language :: Python :: 3.3',
           'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
       ],
       tests_require=tests_require
 )
