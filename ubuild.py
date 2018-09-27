@@ -3,6 +3,10 @@ import subprocess
 
 
 def main(build):
+    tornado_version = os.environ.get("TORNADO_VERSION")
+    if tornado_version:
+        build.packages.install("tornado", version=tornado_version)
+
     build.packages.install(".", develop=True)
 
 
